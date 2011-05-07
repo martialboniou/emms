@@ -61,7 +61,7 @@
   "Backend command for running mplayer on URL."
   (condition-case excep
       (call-process "mplayer" nil t nil
-		    "-nocache" "-endpos" "0" "-vo" "null" "-ao" "null"
+		    "-endpos" "0" "-vo" "null" "-ao" "null"
 		    url)
     (file-error
      (error "Could not find the mplayer backend binary"))))
@@ -71,7 +71,7 @@
   (condition-case excep
       (call-process "vlc" nil t nil
 		    "-vvv" "--intf" "dummy" "--stop-time" "1" "--noaudio"
-		    url "vlc:quit")
+		    url "vlc://quit")
     (file-error
      (error "Could not find the VLC backend binary"))))
 
