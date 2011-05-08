@@ -100,7 +100,7 @@ Note that you must set `ido-mode' if using
   :group 'emms
   :type 'function)
 
-(defcustom emms-track-description-function 'emms-track-simple-description
+(defcustom emms-track-description-function 'emms-track-remote-simple-description
   "*Function for describing an EMMS track in a user-friendly way."
   :group 'emms
   :type 'function)
@@ -387,15 +387,15 @@ This is a good function to put in `emms-player-next-function'."
   (when emms-player-playing-p
     (error "A track is already being played"))
   (cond (emms-repeat-track
-	 (emms-start))
-	((condition-case nil
+     (emms-start))
+    ((condition-case nil
              (progn
                (emms-playlist-current-select-next)
                t)
            (error nil))
-	 (emms-start))
+     (emms-start))
         (t
-	 (message "No next track in playlist"))))
+     (message "No next track in playlist"))))
 
 (defun emms-previous ()
   "Start playing the previous track in the EMMS playlist."
@@ -642,6 +642,16 @@ a description into a playlist buffer."
   (emms-playlist-track-updated track)
   (run-hook-with-args 'emms-track-updated-functions track))
 
+(defun emms-track-remote-simple-description (track)
+  "Simple function to give a user-readable description of a track.
+Return a file name if track is a file track. Return a message with
+information about the stream at URL if track is a URL. Otherwise,
+return the type and the name with a colon in between."
+  (if (and (fboundp 'emms-stream-info-message)
+           (eq (emms-track-type track) 'url))
+      (emms-stream-info-message (emms-track-name track))
+    (emms-track-simple-description track)))
+
 (defun emms-track-simple-description (track)
   "Simple function to give a user-readable description of a track.
 If it's a file track, just return the file name.  Otherwise,
@@ -801,7 +811,7 @@ If no playlist exists, a new one is generated."
   (let ((inhibit-read-only t))
     (widen)
     (delete-region (point-min)
-		   (point-max)))
+           (point-max)))
   (run-hooks 'emms-playlist-cleared-hook))
 
 ;;; Point movement within the playlist buffer.
@@ -810,7 +820,7 @@ If no playlist exists, a new one is generated."
   (emms-playlist-ensure-playlist-buffer)
   (emms-with-widened-buffer
    (get-text-property (or pos (point))
-		      'emms-track)))
+              'emms-track)))
 
 (defun emms-playlist-next ()
   "Move to the next track in the current buffer."
@@ -1055,7 +1065,7 @@ This is supplying ARGS as arguments to the source."
                     (emms-playlist-update-track)
                     (setq pos (text-property-any
                                (next-single-property-change (point)
-							    'emms-track)
+                                'emms-track)
                                (point-max)
                                'emms-track
                                track))))))))
